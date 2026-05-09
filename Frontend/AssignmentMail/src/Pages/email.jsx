@@ -27,17 +27,37 @@ const SendEmail = () => {
 
   // file change
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
+  const selectedFiles = Array.from(e.target.files);
 
-    for (let file of selectedFiles) {
-      if (file.size > 5 * 1024) {
-        toast.error(`❌ ${file.name} size must be less than 5KB`);
-        return;
-      }
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "image/gif",
+    "application/pdf",
+    "text/plain",
+  ];
+
+  const validFiles = [];
+
+  selectedFiles.forEach((file) => {
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(
+        `❌ ${file.name} not allowed. Only Image, PDF, TXT allowed`
+      );
+      return;
     }
 
-    setFiles(selectedFiles);
-  };
+    if (file.size > 5 * 1024) {
+      toast.error(`❌ ${file.name} must be less than 5KB`);
+      return;
+    }
+
+    validFiles.push(file);
+  });
+
+  setFiles(validFiles);
+};
 
   // email validation
   const isValidEmail = (email) =>
@@ -165,8 +185,10 @@ const SendEmail = () => {
           rows={5}
         />
 
-        <input type="file" multiple onChange={handleFileChange} />
-
+        <input type="file" multiple accept="image/*,.pdf,.txt" onChange={handleFileChange} />
+        <p className="file-info">
+          Allowed files: Images (JPG, PNG, GIF), PDF, TXT (Max size: 5KB)
+        </p>
         {files.length > 0 && (
           <ul className="file-list">
             {files.map((f, i) => (
